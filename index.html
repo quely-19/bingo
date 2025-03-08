@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Bingo</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #bingo-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 300px; margin: auto; }
+        .cell { padding: 20px; border: 2px solid black; cursor: pointer; background-color: white; }
+        .marked { background-color: lightgreen; }
+        .winner { background-color: gold; }
+    </style>
+</head>
+<body>
+    <h1>Bingo Game</h1>
+    <label for="category">Choose a category:</label>
+    <select id="category">
+        <option value="family">Family Members</option>
+        <option value="adjectives">Adjectives</option>
+    </select>
+    <button onclick="generateBingo()">Generate Bingo Card</button>
+    <div id="bingo-board"></div>
+    <script>
+        const categories = {
+            family: ["Mother", "Father", "Brother", "Sister", "Grandma", "Grandpa", "Uncle", "Aunt", "Cousin", "Baby", "Son", "Daughter", "Nephew", "Niece", "Stepfather", "Stepmother", "Husband", "Wife", "Parent", "Relative", "Guardian", "In-law", "Sibling", "Twins", "Family"],
+            adjectives: ["Happy", "Sad", "Funny", "Smart", "Kind", "Friendly", "Brave", "Shy", "Lazy", "Energetic", "Strong", "Gentle", "Tall", "Short", "Quiet", "Loud", "Creative", "Serious", "Confident", "Polite", "Helpful", "Patient", "Generous", "Caring", "Loving"]
+        };
+        
+        function generateBingo() {
+            const category = document.getElementById("category").value;
+            const words = categories[category].sort(() => 0.5 - Math.random()).slice(0, 25);
+            const board = document.getElementById("bingo-board");
+            board.innerHTML = "";
+            words.forEach(word => {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.textContent = word;
+                cell.onclick = () => toggleCell(cell);
+                board.appendChild(cell);
+            });
+        }
+        
+        function toggleCell(cell) {
+            cell.classList.toggle("marked");
+            checkWinner();
+        }
+        
+        function checkWinner() {
+            const cells = document.querySelectorAll(".cell");
+            let grid = [];
+            for (let i = 0; i < 5; i++) {
+                grid.push([...cells].slice(i * 5, (i + 1) * 5));
+            }
+            let win = false;
+            
+            // Check rows and columns
+            for (let i = 0; i < 5; i++) {
+                if (grid[i].every(cell => cell.classList.contains("marked")) ||
+                    grid.map(row => row[i]).every(cell => cell.classList.contains("marked"))) {
+                    win = true;
+                }
+            }
+            
+            // Check diagonals
+            if (grid.map((row, i) => row[i]).every(cell => cell.classList.contains("marked")) ||
+                grid.map((row, i) => row[4 - i]).every(cell => cell.classList.contains("marked"))) {
+                win = true;
+            }
+            
+            if (win) {
+                cells.forEach(cell => cell.classList.add("winner"));
+                alert("Bingo! You win!");
+            }
+        }
+    </script>
+</body>
+</html>
